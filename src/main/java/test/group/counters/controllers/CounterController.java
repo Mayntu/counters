@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import test.group.counters.CustomExceptions.NotFoundException;
 import test.group.counters.dao.CounterDAO;
 import test.group.counters.models.CounterModel;
+import test.group.counters.services.CounterService;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -16,21 +17,21 @@ import java.util.Map;
 public class CounterController
 {
     @Autowired
-    private CounterDAO counterDAO;
+    private CounterService counterService;
 
     @GetMapping
     public ResponseEntity apiGetCounter(@RequestParam Long id)
     {
         try
         {
-            CounterModel counterModel = counterDAO.get(id);
+            CounterModel counterModel = counterService.get(id);
             return ResponseEntity.ok(counterModel);
         }
         catch (NotFoundException e)
         {
             return ResponseEntity.badRequest().body("Такой не существует");
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             return ResponseEntity.badRequest().body("server error");
         }
@@ -43,20 +44,14 @@ public class CounterController
         Map<String, String> response = new HashMap<>();
         try
         {
-            counterDAO.insert(counterModel);
+            counterService.insert(counterModel);
             response.put("result", "added successfully");
             return ResponseEntity.ok(response);
-        }
-        catch (SQLException exception)
-        {
-            exception.printStackTrace();
-            response.put("result", "not correct data");
-            return ResponseEntity.badRequest().body(response);
         }
         catch (Exception exception)
         {
             exception.printStackTrace();
-            response.put("result", "server error occurred");
+            response.put("result", "not correct data");
             return ResponseEntity.badRequest().body(response);
         }
     }

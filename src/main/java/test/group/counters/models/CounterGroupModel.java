@@ -11,6 +11,11 @@ public class CounterGroupModel
 
     private String name;
 
+    public CounterGroupModel ()
+    {
+
+    }
+
     public CounterGroupModel (String name)
     {
         this.name = name;

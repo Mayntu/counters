@@ -7,6 +7,11 @@ public class CounterJoinDataModel
     private Float sum;
 
 
+    public CounterJoinDataModel ()
+    {
+
+    }
+
     public CounterJoinDataModel (String groupName, CounterData counterData, Float sum)
     {
         this.groupName = groupName;

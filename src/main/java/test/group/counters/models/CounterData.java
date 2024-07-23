@@ -8,6 +8,11 @@ public class CounterData
     private Float max;
     private Float avg;
 
+    public CounterData ()
+    {
+
+    }
+
 
     public CounterData (String name, Float min, Float max, Float avg)
     {

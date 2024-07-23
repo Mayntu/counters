@@ -7,6 +7,7 @@ import test.group.counters.CustomExceptions.CounterNotFoundException;
 import test.group.counters.CustomExceptions.NotFoundException;
 import test.group.counters.dao.CounterGroupDAO;
 import test.group.counters.models.CounterGroupModel;
+import test.group.counters.services.CounterGroupService;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -16,23 +17,24 @@ import java.util.Map;
 @RequestMapping("/counterGroup")
 public class CounterGroupController {
     @Autowired
-    private CounterGroupDAO counterGroupDAO;
+    private CounterGroupService counterGroupService;
 
     @GetMapping
     public ResponseEntity apiGetCounterGroupModel(@RequestParam Long id)
     {
         try
         {
-            CounterGroupModel counterGroupModel = counterGroupDAO.get(id);
+            CounterGroupModel counterGroupModel = counterGroupService.get(id);
             return ResponseEntity.ok(counterGroupModel);
         }
         catch (NotFoundException e)
         {
             return ResponseEntity.badRequest().body("Такой не существует");
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
-            return ResponseEntity.badRequest().body("sql server error");
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("not correct data");
         }
     }
 
@@ -42,19 +44,14 @@ public class CounterGroupController {
         Map<String, String> response = new HashMap<>();
         try
         {
-            counterGroupDAO.insert(counterGroupModel);
+            counterGroupService.insert(counterGroupModel);
             response.put("result", "counter group added");
             return ResponseEntity.ok(response);
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            response.put("result", "not correct data");
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            response.put("result", "sql server error");
+            response.put("result", "not correct data");
         }
         return ResponseEntity.badRequest().body(response);
     }

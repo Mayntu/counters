@@ -58,7 +58,7 @@ const postCounterReading = async () => {
     console.log(text);
 };
 
-// postCounterReading();
+postCounterReading();
 
 const getCounterReading = async () => {
     let response = await fetch(
@@ -171,3 +171,33 @@ Object.keys(groupedData).forEach(groupName => {
 };
 
 viewData();
+
+
+document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput.files.length === 0) {
+        alert('Please select a file.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    try {
+        const response = await fetch('http://localhost:8080/counterReading/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('File upload failed');
+        }
+
+        const result = await response.json();
+        document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+        document.getElementById('result').textContent = 'Error: ' + error.message;
+    }
+});
