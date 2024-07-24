@@ -79,8 +79,8 @@ public class CounterReadingController
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<List<String>> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        List<String> excelData = new ArrayList<>();
+    public ResponseEntity<List<CounterReadingModel>> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        List<CounterReadingModel> excelData = new ArrayList<>();
 
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
@@ -94,16 +94,15 @@ public class CounterReadingController
                     index = 1;
                     continue;
                 }
-//                CounterReadingModel counterReadingModel;
-                counterReadingService.insert(
-                        new CounterReadingModel(
-                                (long) (row.getCell(0).getNumericCellValue()),
-                                (long) (row.getCell(1).getNumericCellValue()),
-                                row.getCell(2).toString(),
-                                Float.parseFloat(row.getCell(3).toString())
-                        )
+                CounterReadingModel counterReadingModel;
+                counterReadingModel = new CounterReadingModel(
+                        (long) (row.getCell(0).getNumericCellValue()),
+                        (long) (row.getCell(1).getNumericCellValue()),
+                        row.getCell(2).toString(),
+                        Float.parseFloat(row.getCell(3).toString())
                 );
-                excelData.add("counterReadingModel");
+                counterReadingService.insert(counterReadingModel);
+                excelData.add(counterReadingModel);
             }
 
         } catch (IOException e) {

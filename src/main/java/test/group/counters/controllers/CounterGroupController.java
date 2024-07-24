@@ -1,16 +1,19 @@
 package test.group.counters.controllers;
 
+import jakarta.persistence.Tuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import test.group.counters.CustomExceptions.CounterNotFoundException;
 import test.group.counters.CustomExceptions.NotFoundException;
 import test.group.counters.dao.CounterGroupDAO;
+import test.group.counters.dto.CountersGroupCountersCountDTO;
 import test.group.counters.models.CounterGroupModel;
 import test.group.counters.services.CounterGroupService;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,6 +38,24 @@ public class CounterGroupController {
         {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("not correct data");
+        }
+    }
+
+    @GetMapping("/countersCount")
+    public ResponseEntity apiGetCountersGroupCountersCount()
+    {
+        try
+        {
+            List<CountersGroupCountersCountDTO> countersGroupCountersCount = counterGroupService.getCounters();
+
+
+            return ResponseEntity.ok(countersGroupCountersCount);
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+
+            return ResponseEntity.badRequest().body("service not working");
         }
     }
 

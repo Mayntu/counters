@@ -58,7 +58,7 @@ const postCounterReading = async () => {
     console.log(text);
 };
 
-postCounterReading();
+// postCounterReading();
 
 const getCounterReading = async () => {
     let response = await fetch(

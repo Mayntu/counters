@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 public class CounterReadingModel
 {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "counter_reading_id_seq")
+    @SequenceGenerator(name = "counter_reading_id_seq", sequenceName = "counter_reading_id_seq", allocationSize = 1)
     private Long id;
 
     private Long counterId, groupId;

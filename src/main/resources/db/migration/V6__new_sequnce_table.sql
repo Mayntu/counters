@@ -1,3 +1,3 @@
-DROP counter_model_seq;
-DROP counter_group_model_seq;
-DROP counter_reading_model_seq;
+DROP SEQUENCE counter_model_seq;
+DROP SEQUENCE counter_group_model_seq;
+DROP SEQUENCE counter_reading_seq;
