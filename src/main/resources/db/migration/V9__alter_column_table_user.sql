@@ -1,0 +1,5 @@
+ALTER TABLE user_model
+DROP COLUMN name;
+
+ALTER TABLE user_model
+ADD COLUMN username VARCHAR(255) NOT NULL;
