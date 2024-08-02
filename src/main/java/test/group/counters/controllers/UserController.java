@@ -1,0 +1,34 @@
+package test.group.counters.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import test.group.counters.dto.AuthRequest;
+import test.group.counters.dto.AuthenticationResponse;
+import test.group.counters.services.AuthenticationService;
+
+@RestController
+public class UserController
+{
+    private AuthenticationService authenticationService;
+
+    @Autowired
+    public UserController(AuthenticationService authenticationService)
+    {
+        this.authenticationService = authenticationService;
+    }
+
+    @PostMapping("/api/v1/registration")
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthRequest data)
+    {
+        return ResponseEntity.ok(authenticationService.register(data));
+    }
+
+    @PostMapping("/api/v1/authorization")
+    public ResponseEntity<AuthenticationResponse> authorization(@RequestBody AuthRequest data)
+    {
+        return ResponseEntity.ok(authenticationService.authorization(data));
+    }
+}

@@ -1,0 +1,2 @@
+ALTER TABLE user_model
+ADD COLUMN role VARCHAR(255) NOT NULL;

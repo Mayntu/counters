@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import test.group.counters.CustomExceptions.TokenNotValidException;
 
 import java.io.IOException;
 
@@ -33,10 +34,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException
-    {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("bearer "))
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
         {
             filterChain.doFilter(request, response);
             return;
@@ -57,6 +57,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+            else
+            {
+                filterChain.doFilter(request, response);
+                return;
             }
         }
         filterChain.doFilter(request, response);

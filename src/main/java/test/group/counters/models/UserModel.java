@@ -28,10 +28,11 @@ public class UserModel implements UserDetails {
 
     }
 
-    public UserModel(String username, String password)
+    public UserModel(String username, String password, Role role)
     {
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
     public UserModel(Long _id, String username, String password)
