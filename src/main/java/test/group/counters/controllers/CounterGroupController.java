@@ -1,7 +1,9 @@
 package test.group.counters.controllers;
 
 import jakarta.persistence.Tuple;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,61 +25,25 @@ public class CounterGroupController {
     @Autowired
     private CounterGroupService counterGroupService;
 
-    @GetMapping
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
-    public ResponseEntity apiGetCounterGroupModel(@RequestParam Long id)
+    public CounterGroupModel apiGetCounterGroupModel(@PathVariable Long id)
     {
-        try
-        {
-            CounterGroupModel counterGroupModel = counterGroupService.get(id);
-            return ResponseEntity.ok(counterGroupModel);
-        }
-        catch (NotFoundException e)
-        {
-            return ResponseEntity.badRequest().body("Такой не существует");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("not correct data");
-        }
+        return counterGroupService.get(id);
     }
 
-    @GetMapping("/countersCount")
+    @GetMapping("/count")
     @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
-    public ResponseEntity apiGetCountersGroupCountersCount()
+    public List<CountersGroupCountersCountDTO> apiGetCountersGroupCountersCount()
     {
-        try
-        {
-            List<CountersGroupCountersCountDTO> countersGroupCountersCount = counterGroupService.getCounters();
-
-
-            return ResponseEntity.ok(countersGroupCountersCount);
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-
-            return ResponseEntity.badRequest().body("service not working");
-        }
+        return counterGroupService.getCounters();
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
-    public ResponseEntity<Map<String, String>> apiPostCounterGroupModel(@RequestBody CounterGroupModel counterGroupModel)
+    public ResponseEntity<Void> apiPostCounterGroupModel(@Valid @RequestBody CounterGroupModel counterGroupModel)
     {
-        Map<String, String> response = new HashMap<>();
-        try
-        {
-            counterGroupService.insert(counterGroupModel);
-            response.put("result", "counter group added");
-            return ResponseEntity.ok(response);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            response.put("result", "not correct data");
-        }
-        return ResponseEntity.badRequest().body(response);
+        counterGroupService.insert(counterGroupModel);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

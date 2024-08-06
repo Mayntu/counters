@@ -1,10 +1,15 @@
 package test.group.counters.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ServerErrorException;
 import test.group.counters.CustomExceptions.CounterGroupNotFoundException;
+import test.group.counters.CustomExceptions.CounterNotFoundException;
+import test.group.counters.CustomExceptions.InvalidCounterException;
 import test.group.counters.dto.CreateCounterRequest;
+import test.group.counters.dto.InsertCounterDTO;
 import test.group.counters.models.CounterModel;
 import test.group.counters.models.Role;
 import test.group.counters.models.UserModel;
@@ -31,32 +36,30 @@ public class CounterService
 
 
     public CounterModel get(Long id) throws CounterGroupNotFoundException {
-        Optional<CounterModel> counterModelOptional = counterRepository.findById(id);
-
-        if(counterModelOptional.isPresent())
-        {
-            return counterModelOptional.get();
-        }
-
-        throw new CounterGroupNotFoundException();
+        return counterRepository.findById(id).orElseThrow(CounterNotFoundException::new);
     }
 
-    public Map<String, String> insert(CreateCounterRequest createCounterRequest)
+    public InsertCounterDTO insert(CreateCounterRequest createCounterRequest)
     {
-        Map<String, String> userdata = new HashMap<>();
-
         String username = "COUNTER_" + createCounterRequest.getName();
         String password = generatePassword();
-        UserModel userModel = new UserModel(username, passwordEncoder.encode(password), Role.METER);
-        userRepository.save(userModel);
 
-        CounterModel counterModel = new CounterModel(createCounterRequest.getName(), createCounterRequest.getGroupName(), userModel);
-        counterRepository.save(counterModel);
+        try
+        {
+            UserModel userModel = new UserModel(username, passwordEncoder.encode(password), Role.METER);
+            userRepository.save(userModel);
 
-        userdata.put("username", username);
-        userdata.put("password", password);
+            CounterModel counterModel = new CounterModel(createCounterRequest.getName(), createCounterRequest.getGroupName(), userModel);
+            counterRepository.save(counterModel);
+        } catch (DataIntegrityViolationException e) {
+            throw new InvalidCounterException();
+        } catch (Exception e) {
+            throw new ServerErrorException("server not working", e);
+        }
 
-        return userdata;
+        InsertCounterDTO insertCounterDTO = new InsertCounterDTO(username, password);
+
+        return insertCounterDTO;
     }
 
     private String generatePassword()

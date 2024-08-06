@@ -2,9 +2,11 @@ package test.group.counters.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ServerErrorException;
+import test.group.counters.CustomExceptions.InvalidCounterJoinDataException;
 import test.group.counters.core.Database;
 import test.group.counters.models.CounterData;
-import test.group.counters.models.CounterJoinDataModel;
+import test.group.counters.dto.CounterJoinDataModel;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +18,7 @@ public class CounterJoinDataDAO  {
     @Autowired
     private Database database;
 
-    public List<CounterJoinDataModel> info() throws SQLException
+    public List<CounterJoinDataModel> info()
     {
         String query = "SELECT MIN(crm.current_reading), MAX(crm.current_reading), AVG(crm.current_reading), cem.group_name, cem.name FROM counter_reading_model AS crm JOIN counter_model cem ON crm.counter_id = cem.id GROUP BY cem.name, cem.group_name;";
         List<CounterJoinDataModel> counterJoinDataModelList = new ArrayList<>();
@@ -38,11 +40,11 @@ public class CounterJoinDataDAO  {
         }
         catch (SQLException exception)
         {
-            throw exception;
+            throw new InvalidCounterJoinDataException();
         }
         catch (Exception exception)
         {
-            throw exception;
+            throw new ServerErrorException("server error occurred", exception);
         }
 
         return counterJoinDataModelList;

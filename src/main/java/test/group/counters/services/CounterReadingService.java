@@ -2,6 +2,7 @@ package test.group.counters.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ServerErrorException;
 import test.group.counters.CustomExceptions.CounterReadingNotFoundException;
 import test.group.counters.models.CounterReadingModel;
 import test.group.counters.repositories.CounterReadingRepository;
@@ -19,21 +20,19 @@ public class CounterReadingService
     public List<CounterReadingModel> getAll()
     {
         List<CounterReadingModel> counterReadingModelList = new ArrayList<>();
-        Iterable<CounterReadingModel> counterReadingModels = counterReadingRepository.findAll();
-        counterReadingModels.forEach(counterReadingModelList::add);
-        return counterReadingModelList;
+        try {
+            Iterable<CounterReadingModel> counterReadingModels = counterReadingRepository.findAll();
+            counterReadingModels.forEach(counterReadingModelList::add);
+            return counterReadingModelList;
+        }
+        catch (Exception e) {
+            throw new ServerErrorException("not working server", e);
+        }
     }
 
-    public CounterReadingModel get(Long id) throws CounterReadingNotFoundException
+    public CounterReadingModel get(Long id)
     {
-        Optional<CounterReadingModel> counterReadingModelOptional = counterReadingRepository.findById(id);
-
-        if (counterReadingModelOptional.isPresent())
-        {
-            return counterReadingModelOptional.get();
-        }
-
-        throw new CounterReadingNotFoundException();
+        return counterReadingRepository.findById(id).orElseThrow(CounterReadingNotFoundException::new);
     }
 
     public void insert(CounterReadingModel counterReadingModel)

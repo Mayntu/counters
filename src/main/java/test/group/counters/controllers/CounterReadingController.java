@@ -35,55 +35,24 @@ public class CounterReadingController
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
-    public ResponseEntity apiGetAllCounterReadings()
+    public List<CounterReadingModel> apiGetAllCounterReadings()
     {
-        try
-        {
-            return ResponseEntity.ok(counterReadingService.getAll());
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-            return ResponseEntity.badRequest().body("not working server");
-        }
+        return counterReadingService.getAll();
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
-    public ResponseEntity apiGetCounterReading(@RequestParam Long id)
+    public CounterReadingModel apiGetCounterReading(@PathVariable Long id)
     {
-        try
-        {
-            return ResponseEntity.ok(counterReadingService.get(id));
-        }
-        catch (NotFoundException e)
-        {
-            return ResponseEntity.badRequest().body("Такой не существует");
-        }
-        catch (Exception e)
-        {
-            return ResponseEntity.badRequest().body("server error");
-        }
+        return counterReadingService.get(id);
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('admin:create', 'counter:post_reading')")
-    public ResponseEntity<Map<String, String>> apiInsertCounterReading(@Valid @RequestBody CounterReadingModel counterReadingModel)
+    public ResponseEntity<Void> apiInsertCounterReading(@Valid @RequestBody CounterReadingModel counterReadingModel)
     {
-        System.out.println("request");
-        Map<String, String> response = new HashMap<>();
-        try
-        {
-            counterReadingService.insert(counterReadingModel);
-            response.put("result", "added successfully");
-            return ResponseEntity.ok(response);
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-            response.put("result", "not correct data");
-            return ResponseEntity.badRequest().body(response);
-        }
+        counterReadingService.insert(counterReadingModel);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/upload")

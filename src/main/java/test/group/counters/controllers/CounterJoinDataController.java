@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import test.group.counters.dao.CounterJoinDataDAO;
-import test.group.counters.models.CounterJoinDataModel;
+import test.group.counters.dto.CounterJoinDataModel;
 import test.group.counters.services.ExcelEditorService;
 
 import java.sql.SQLException;
@@ -33,23 +33,8 @@ public class CounterJoinDataController
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
-    public ResponseEntity apiGetInfo()
-    {
-        try
-        {
-            List<CounterJoinDataModel> counterJoinDataModelList = counterJoinDataDAO.info();
-            return ResponseEntity.ok(counterJoinDataModelList);
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("not correct data");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("the server error");
-        }
+    public List<CounterJoinDataModel> apiGetInfo() {
+        return counterJoinDataDAO.info();
     }
 
     @GetMapping("/download")

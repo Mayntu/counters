@@ -1,7 +1,11 @@
 package test.group.counters.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public class CreateCounterRequest {
+    @NotNull
     private String name;
+    @NotNull
     private String groupName;
 
 

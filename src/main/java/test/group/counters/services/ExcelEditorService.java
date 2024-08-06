@@ -6,7 +6,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
-import test.group.counters.models.CounterJoinDataModel;
+import test.group.counters.dto.CounterJoinDataModel;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

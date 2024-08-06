@@ -1,4 +1,6 @@
-package test.group.counters.models;
+package test.group.counters.dto;
+
+import test.group.counters.models.CounterData;
 
 public class CounterJoinDataModel
 {
