@@ -3,6 +3,7 @@ package test.group.counters.controllers;
 import jakarta.persistence.Tuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import test.group.counters.CustomExceptions.CounterNotFoundException;
 import test.group.counters.CustomExceptions.NotFoundException;
@@ -23,6 +24,7 @@ public class CounterGroupController {
     private CounterGroupService counterGroupService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
     public ResponseEntity apiGetCounterGroupModel(@RequestParam Long id)
     {
         try
@@ -42,6 +44,7 @@ public class CounterGroupController {
     }
 
     @GetMapping("/countersCount")
+    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
     public ResponseEntity apiGetCountersGroupCountersCount()
     {
         try
@@ -60,6 +63,7 @@ public class CounterGroupController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('admin:create')")
     public ResponseEntity<Map<String, String>> apiPostCounterGroupModel(@RequestBody CounterGroupModel counterGroupModel)
     {
         Map<String, String> response = new HashMap<>();

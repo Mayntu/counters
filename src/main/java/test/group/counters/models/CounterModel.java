@@ -14,15 +14,20 @@ public class CounterModel
     private String name;
     private String groupName;
 
+    @ManyToOne
+    @JoinColumn(name = "user_model_id", referencedColumnName = "id")
+    private UserModel userModel;
+
     public CounterModel ()
     {
 
     }
 
-    public CounterModel (String name, String group)
+    public CounterModel (String name, String group, UserModel userModel)
     {
         this.name = name;
         this.groupName = group;
+        this.userModel = userModel;
     }
 
     public CounterModel (Long _id, String name, String group)
@@ -61,5 +66,14 @@ public class CounterModel
     {
         return groupName;
     }
-}
 
+    public void setUserModel(UserModel userModel)
+    {
+        this.userModel = userModel;
+    }
+
+    public UserModel getUserModel()
+    {
+        return userModel;
+    }
+}

@@ -2,6 +2,7 @@ package test.group.counters.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,7 @@ public class CounterJoinDataController
     private ExcelEditorService excelEditorService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
     public ResponseEntity apiGetInfo()
     {
         try
@@ -51,6 +53,7 @@ public class CounterJoinDataController
     }
 
     @GetMapping("/download")
+    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
     public ResponseEntity<Resource> downloadFile() throws IOException, SQLException {
         List<CounterJoinDataModel> counterJoinDataModelList = counterJoinDataDAO.info();
 

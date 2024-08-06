@@ -1,7 +1,11 @@
 package test.group.counters.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +34,7 @@ public class CounterReadingController
     private CounterReadingService counterReadingService;
 
     @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
     public ResponseEntity apiGetAllCounterReadings()
     {
         try
@@ -42,7 +47,9 @@ public class CounterReadingController
             return ResponseEntity.badRequest().body("not working server");
         }
     }
+
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
     public ResponseEntity apiGetCounterReading(@RequestParam Long id)
     {
         try
@@ -60,7 +67,8 @@ public class CounterReadingController
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> apiInsertCounterReading(@RequestBody CounterReadingModel counterReadingModel)
+    @PreAuthorize("hasAnyAuthority('admin:create', 'counter:post_reading')")
+    public ResponseEntity<Map<String, String>> apiInsertCounterReading(@Valid @RequestBody CounterReadingModel counterReadingModel)
     {
         System.out.println("request");
         Map<String, String> response = new HashMap<>();
@@ -79,6 +87,7 @@ public class CounterReadingController
     }
 
     @PostMapping("/upload")
+    @PreAuthorize("hasAnyAuthority('admin:create', 'counter:post_reading')")
     public ResponseEntity<List<CounterReadingModel>> handleFileUpload(@RequestParam("file") MultipartFile file) {
         List<CounterReadingModel> excelData = new ArrayList<>();
 
@@ -110,5 +119,20 @@ public class CounterReadingController
         }
 
         return ResponseEntity.ok(excelData);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex)
+    {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return errors;
     }
 }

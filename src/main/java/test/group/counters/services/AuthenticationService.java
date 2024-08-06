@@ -32,7 +32,7 @@ public class AuthenticationService
 
     public AuthenticationResponse register(AuthRequest data)
     {
-        UserModel user = new UserModel(data.getUsername(), passwordEncoder.encode(data.getPassword()), Role.USER);
+        UserModel user = new UserModel(data.getUsername(), passwordEncoder.encode(data.getPassword()), data.getIsOperator() ? Role.OPERATOR : Role.METER);
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         return new AuthenticationResponse(token);

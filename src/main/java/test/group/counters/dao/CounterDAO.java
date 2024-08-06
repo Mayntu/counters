@@ -53,10 +53,7 @@ public class CounterDAO
         {
             throw exception;
         }
-        catch (Exception exception)
-        {
-            throw new RuntimeException();
-        }
+
     }
 
     public void update(CounterModel counterModel, Long id) throws NotFoundException, SQLException {

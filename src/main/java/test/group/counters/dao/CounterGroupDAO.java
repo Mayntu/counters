@@ -27,6 +27,7 @@ public class CounterGroupDAO
         {
             if (resultSet.next()) {
                 nextId = resultSet.getLong(1);
+
             }
         }
         catch (SQLException e)

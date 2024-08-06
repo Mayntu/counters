@@ -1,0 +1,6 @@
+BEGIN TRANSACTION;
+UPDATE user_model
+SET password = '$2a$10$TnMTrIO/mGPCQFr5/eAoWe8pWcymXZM59tSm6kPOwhYWms/SEDqR2'
+WHERE username = 'admin';
+END TRANSACTION;
+COMMIT;
