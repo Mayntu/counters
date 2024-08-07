@@ -6,10 +6,7 @@ public class AuthRequest
     private String password;
     private Boolean isOperator;
 
-    public AuthRequest()
-    {
-
-    }
+    public AuthRequest() {}
 
     public AuthRequest(String username, String password)
     {

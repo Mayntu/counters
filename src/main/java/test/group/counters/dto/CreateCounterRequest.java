@@ -1,18 +1,17 @@
 package test.group.counters.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public class CreateCounterRequest {
-    @NotNull
+    @NotBlank(message = "name is not presented")
     private String name;
-    @NotNull
+    @NotBlank(message = "group name is not presented")
     private String groupName;
 
 
-    public CreateCounterRequest ()
+    public CreateCounterRequest()
     {
-        this.name = null;
-        this.groupName = null;
+
     }
 
     public CreateCounterRequest(String name, String groupName)

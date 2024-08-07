@@ -1,32 +1,38 @@
 package test.group.counters.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ServerErrorException;
 import test.group.counters.CustomExceptions.CounterReadingNotFoundException;
-import test.group.counters.models.CounterReadingModel;
+import test.group.counters.entities.CounterReadingModel;
 import test.group.counters.repositories.CounterReadingRepository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CounterReadingService
 {
-    @Autowired
-    private CounterReadingRepository counterReadingRepository;
+    private final CounterReadingRepository counterReadingRepository;
 
-    public List<CounterReadingModel> getAll()
+    public CounterReadingService(CounterReadingRepository counterReadingRepository) {
+        this.counterReadingRepository = counterReadingRepository;
+    }
+
+    public Page<CounterReadingModel> getAll(Integer offset, Integer limit)
     {
-        List<CounterReadingModel> counterReadingModelList = new ArrayList<>();
         try {
-            Iterable<CounterReadingModel> counterReadingModels = counterReadingRepository.findAll();
-            counterReadingModels.forEach(counterReadingModelList::add);
-            return counterReadingModelList;
-        }
-        catch (Exception e) {
-            throw new ServerErrorException("not working server", e);
+            return counterReadingRepository.findAll(PageRequest.of(offset, limit));
+        } catch (Exception e) {
+            throw new ServerErrorException("internal server error", e);
         }
     }
 
@@ -38,5 +44,39 @@ public class CounterReadingService
     public void insert(CounterReadingModel counterReadingModel)
     {
         counterReadingRepository.save(counterReadingModel);
+    }
+
+    public List<CounterReadingModel> uploadFile(MultipartFile fileToUpload)
+    {
+        List<CounterReadingModel> excelData = new ArrayList<>();
+
+        try (InputStream inputStream = fileToUpload.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            int index = 0;
+
+            for (Row row : sheet) {
+                if (index == 0)
+                {
+                    index = 1;
+                    continue;
+                }
+                CounterReadingModel counterReadingModel;
+                counterReadingModel = new CounterReadingModel(
+                        (long) (row.getCell(0).getNumericCellValue()),
+                        (long) (row.getCell(1).getNumericCellValue()),
+                        row.getCell(2).toString(),
+                        Float.parseFloat(row.getCell(3).toString())
+                );
+                insert(counterReadingModel);
+                excelData.add(counterReadingModel);
+            }
+
+        } catch (IOException e) {
+            throw new ServerErrorException("server error internal", e);
+        }
+
+        return excelData;
     }
 }

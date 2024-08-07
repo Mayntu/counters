@@ -1,20 +1,20 @@
-package test.group.counters.models;
+package test.group.counters.dto;
 
 
-public class CounterData
+public class CounterDataDTO
 {
     private String name;
     private Float min;
     private Float max;
     private Float avg;
 
-    public CounterData ()
+    public CounterDataDTO ()
     {
 
     }
 
 
-    public CounterData (String name, Float min, Float max, Float avg)
+    public CounterDataDTO (String name, Float min, Float max, Float avg)
     {
         this.name = name;
         this.min = min;

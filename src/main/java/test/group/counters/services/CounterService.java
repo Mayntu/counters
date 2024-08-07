@@ -1,24 +1,20 @@
 package test.group.counters.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerErrorException;
-import test.group.counters.CustomExceptions.CounterGroupNotFoundException;
 import test.group.counters.CustomExceptions.CounterNotFoundException;
 import test.group.counters.CustomExceptions.InvalidCounterException;
 import test.group.counters.dto.CreateCounterRequest;
-import test.group.counters.dto.InsertCounterDTO;
-import test.group.counters.models.CounterModel;
-import test.group.counters.models.Role;
-import test.group.counters.models.UserModel;
+import test.group.counters.dto.InsertedCounterDTO;
+import test.group.counters.entities.CounterModel;
+import test.group.counters.entities.Role;
+import test.group.counters.entities.UserModel;
 import test.group.counters.repositories.CounterRepository;
 import test.group.counters.repositories.UserRepository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
 @Service
 public class CounterService
 {
@@ -35,11 +31,11 @@ public class CounterService
     }
 
 
-    public CounterModel get(Long id) throws CounterGroupNotFoundException {
+    public CounterModel get(Long id) {
         return counterRepository.findById(id).orElseThrow(CounterNotFoundException::new);
     }
 
-    public InsertCounterDTO insert(CreateCounterRequest createCounterRequest)
+    public InsertedCounterDTO insert(CreateCounterRequest createCounterRequest)
     {
         String username = "COUNTER_" + createCounterRequest.getName();
         String password = generatePassword();
@@ -57,9 +53,9 @@ public class CounterService
             throw new ServerErrorException("server not working", e);
         }
 
-        InsertCounterDTO insertCounterDTO = new InsertCounterDTO(username, password);
+        InsertedCounterDTO insertedCounterDTO = new InsertedCounterDTO(username, password);
 
-        return insertCounterDTO;
+        return insertedCounterDTO;
     }
 
     private String generatePassword()

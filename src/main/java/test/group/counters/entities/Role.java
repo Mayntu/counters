@@ -1,8 +1,7 @@
-package test.group.counters.models;
+package test.group.counters.entities;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -10,20 +9,24 @@ import java.util.stream.Collectors;
 public enum Role {
     OPERATOR(
           Set.of(
-                  Permission.OPERATOR_GET_COUNTER
+                  Permission.GET_COUNTER,
+                  Permission.GET_COUNTER_GROUP,
+                  Permission.GET_READING
           )
     ),
     ADMIN(
             Set.of(
-                    Permission.ADMIN_CREATE,
-                    Permission.ADMIN_GET,
-                    Permission.ADMIN_UPDATE,
-                    Permission.ADMIN_DELETE
+                    Permission.POST_COUNTER,
+                    Permission.GET_COUNTER,
+                    Permission.POST_COUNTER_GROUP,
+                    Permission.GET_COUNTER_GROUP,
+                    Permission.POST_READING,
+                    Permission.GET_READING
             )
     ),
     METER(
             Set.of(
-                    Permission.COUNTER_POST_READING
+                    Permission.POST_READING
             )
     );
 

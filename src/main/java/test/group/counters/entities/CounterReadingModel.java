@@ -1,6 +1,7 @@
-package test.group.counters.models;
+package test.group.counters.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -12,9 +13,11 @@ public class CounterReadingModel
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "counter_reading_id_seq")
     @SequenceGenerator(name = "counter_reading_id_seq", sequenceName = "counter_reading_id_seq", allocationSize = 1)
     private Long id;
-    @NotNull(message = "where is id")
-    private Long counterId, groupId;
-    @NotNull(message = "where is date")
+    @NotNull(message = "where is counterId")
+    private Long counterId;
+    @NotNull(message = "where is groupId")
+    private Long groupId;
+    @NotBlank(message = "where is date")
     private String date;
     @NotNull(message = "where is reading")
     @PositiveOrZero(message = "current reading must be (not negative) or zero")

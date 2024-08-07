@@ -1,54 +1,52 @@
 package test.group.counters.controllers;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import test.group.counters.CustomExceptions.NotFoundException;
-import test.group.counters.models.CounterReadingModel;
+import test.group.counters.entities.CounterReadingModel;
 import test.group.counters.services.CounterReadingService;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 @RestController
 @RequestMapping("/counterReading")
 public class CounterReadingController
 {
-    @Autowired
-    private CounterReadingService counterReadingService;
+    private final CounterReadingService counterReadingService;
+
+    public CounterReadingController(CounterReadingService counterReadingService) {
+        this.counterReadingService = counterReadingService;
+    }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
-    public List<CounterReadingModel> apiGetAllCounterReadings()
+    @PreAuthorize("hasAuthority('get_reading')")
+    public Page<CounterReadingModel> apiGetAllCounterReadings(
+            @RequestParam(value = "offset", defaultValue = "0") @Min(0) Integer offset,
+            @RequestParam(value = "limit", defaultValue = "20") @Min(0) @Max(100) Integer limit
+    )
     {
-        return counterReadingService.getAll();
+        return counterReadingService.getAll(offset, limit);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('admin:get', 'operator:get')")
+    @PreAuthorize("hasAuthority('get_reading')")
     public CounterReadingModel apiGetCounterReading(@PathVariable Long id)
     {
         return counterReadingService.get(id);
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('admin:create', 'counter:post_reading')")
+    @PreAuthorize("hasAuthority('post_reading')")
     public ResponseEntity<Void> apiInsertCounterReading(@Valid @RequestBody CounterReadingModel counterReadingModel)
     {
         counterReadingService.insert(counterReadingModel);
@@ -56,38 +54,9 @@ public class CounterReadingController
     }
 
     @PostMapping("/upload")
-    @PreAuthorize("hasAnyAuthority('admin:create', 'counter:post_reading')")
-    public ResponseEntity<List<CounterReadingModel>> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        List<CounterReadingModel> excelData = new ArrayList<>();
-
-        try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(inputStream)) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            int index = 0;
-
-            for (Row row : sheet) {
-                if (index == 0)
-                {
-                    index = 1;
-                    continue;
-                }
-                CounterReadingModel counterReadingModel;
-                counterReadingModel = new CounterReadingModel(
-                        (long) (row.getCell(0).getNumericCellValue()),
-                        (long) (row.getCell(1).getNumericCellValue()),
-                        row.getCell(2).toString(),
-                        Float.parseFloat(row.getCell(3).toString())
-                );
-                counterReadingService.insert(counterReadingModel);
-                excelData.add(counterReadingModel);
-            }
-
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        return ResponseEntity.ok(excelData);
+    @PreAuthorize("hasAuthority('post_reading')")
+    public List<CounterReadingModel> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        return counterReadingService.uploadFile(file);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

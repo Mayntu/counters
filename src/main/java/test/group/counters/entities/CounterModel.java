@@ -1,4 +1,4 @@
-package test.group.counters.models;
+package test.group.counters.entities;
 
 import jakarta.persistence.*;
 
@@ -30,11 +30,12 @@ public class CounterModel
         this.userModel = userModel;
     }
 
-    public CounterModel (Long _id, String name, String group)
+    public CounterModel (Long _id, String name, String group, UserModel userModel)
     {
         this.id = _id;
         this.name = name;
         this.groupName = group;
+        this.userModel = userModel;
     }
 
     public void setId(Long id)

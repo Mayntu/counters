@@ -1,23 +1,21 @@
 package test.group.counters.dto;
 
-import test.group.counters.models.CounterData;
-
-public class CounterJoinDataModel
+public class CounterJoinDataDTO
 {
     private String groupName;
-    private CounterData counterData;
+    private CounterDataDTO counterDataDTO;
     private Float sum;
 
 
-    public CounterJoinDataModel ()
+    public CounterJoinDataDTO ()
     {
 
     }
 
-    public CounterJoinDataModel (String groupName, CounterData counterData, Float sum)
+    public CounterJoinDataDTO (String groupName, CounterDataDTO counterData, Float sum)
     {
         this.groupName = groupName;
-        this.counterData = counterData;
+        this.counterDataDTO = counterData;
         this.sum = sum;
     }
 
@@ -31,14 +29,14 @@ public class CounterJoinDataModel
         return this.groupName;
     }
 
-    public void setCounterData(CounterData counterData)
+    public void setCounterData(CounterDataDTO counterData)
     {
-        this.counterData = counterData;
+        this.counterDataDTO = counterData;
     }
 
-    public CounterData getCounterData()
+    public CounterDataDTO getCounterData()
     {
-        return this.counterData;
+        return this.counterDataDTO;
     }
 
     public void setSum(Float sum)

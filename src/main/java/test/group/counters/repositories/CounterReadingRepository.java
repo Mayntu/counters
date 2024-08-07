@@ -1,9 +1,9 @@
 package test.group.counters.repositories;
 
-import org.springframework.data.repository.CrudRepository;
-import test.group.counters.models.CounterReadingModel;
+import org.springframework.data.jpa.repository.JpaRepository;
+import test.group.counters.entities.CounterReadingModel;
 
-public interface CounterReadingRepository extends CrudRepository<CounterReadingModel, Long>
+public interface CounterReadingRepository extends JpaRepository<CounterReadingModel, Long>
 {
 
 }

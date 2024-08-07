@@ -1,7 +1,7 @@
 package test.group.counters.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import test.group.counters.models.UserModel;
+import test.group.counters.entities.UserModel;
 
 import java.util.Optional;
 

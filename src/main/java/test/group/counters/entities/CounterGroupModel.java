@@ -1,7 +1,7 @@
-package test.group.counters.models;
+package test.group.counters.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "counter_group_model")
@@ -12,7 +12,7 @@ public class CounterGroupModel
     @SequenceGenerator(sequenceName = "counter_group_id_seq", name = "counter_group_id_seq", allocationSize = 1)
     private Long id;
 
-    @NotNull
+    @NotBlank
     private String name;
 
     public CounterGroupModel ()

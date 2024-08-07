@@ -1,7 +1,6 @@
 package test.group.counters.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,8 +8,8 @@ import org.springframework.stereotype.Service;
 import test.group.counters.config.JwtService;
 import test.group.counters.dto.AuthRequest;
 import test.group.counters.dto.AuthenticationResponse;
-import test.group.counters.models.Role;
-import test.group.counters.models.UserModel;
+import test.group.counters.entities.Role;
+import test.group.counters.entities.UserModel;
 import test.group.counters.repositories.UserRepository;
 
 @Service

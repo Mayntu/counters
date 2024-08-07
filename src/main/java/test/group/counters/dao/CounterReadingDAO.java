@@ -1,12 +1,11 @@
 package test.group.counters.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ServerErrorException;
 import test.group.counters.CustomExceptions.CounterReadingNotFoundException;
-import test.group.counters.CustomExceptions.NotFoundException;
+import test.group.counters.CustomExceptions.InvalidCounterReadingException;
 import test.group.counters.core.Database;
-import test.group.counters.models.CounterReadingModel;
+import test.group.counters.entities.CounterReadingModel;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,10 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@RequestMapping("/counterReading")
 public class CounterReadingDAO {
-    @Autowired
-    private Database database;
+    private final Database database;
+
+    public CounterReadingDAO(Database database) {
+        this.database = database;
+    }
 
     public Long getNextId()
     {
@@ -29,18 +30,15 @@ public class CounterReadingDAO {
             if (resultSet.next()) {
                 nextId = resultSet.getLong(1);
             }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        catch (Exception e)
-        {
-            System.out.println("server error now");
+        } catch (SQLException e) {
+            throw new InvalidCounterReadingException();
+        } catch (Exception e) {
+            throw new ServerErrorException("internal server error", e);
         }
         return nextId;
     }
 
-    public void insert(CounterReadingModel counterReadingModel) throws SQLException
+    public void insert(CounterReadingModel counterReadingModel)
     {
         String query = "INSERT INTO counter_reading_model " +
                        "(id, current_reading, counter_id, date, group_id) " +
@@ -51,11 +49,14 @@ public class CounterReadingDAO {
                                counterReadingModel.getDate(),
                                counterReadingModel.getGroupId()
                        );
-        System.out.println(query);
-        database.executeCommit(query);
+        try {
+            database.executeCommit(query);
+        } catch (Exception e) {
+            throw new ServerErrorException("internal server error", e);
+        }
     }
 
-    public void update(CounterReadingModel counterReadingModel, Long id) throws SQLException
+    public void update(CounterReadingModel counterReadingModel, Long id)
     {
         String query = "UPDATE counter_reading_model " +
                        String.format("SET current_reading = %s, counter_id = %s, date = '%s', group_id = %s",
@@ -65,49 +66,59 @@ public class CounterReadingDAO {
                                counterReadingModel.getGroupId()
                        ) +
                        String.format("WHERE id = %s;", id);
-        System.out.println(query);
-        database.executeCommit(query);
+
+        try {
+            database.executeCommit(query);
+        } catch (SQLException e) {
+            throw new InvalidCounterReadingException();
+        } catch (Exception e) {
+            throw new ServerErrorException("internal server error", e);
+        }
     }
 
-    public CounterReadingModel get(Long id) throws SQLException, NotFoundException
+    public CounterReadingModel get(Long id)
     {
         String query = String.format("SELECT * FROM counter_reading_model WHERE id = %s", id);
 
-        ResultSet resultSet = database.executeGet(query);
+        try (ResultSet resultSet = database.executeGet(query)) {
+            if (resultSet.next())
+            {
+                float currentReading = resultSet.getFloat("current_reading");
+                Long counterId = resultSet.getLong("counter_id");
+                Long groupId = resultSet.getLong("group_id");
+                String date = resultSet.getString("date");
 
-        if (resultSet.next())
-        {
-            Float currentReading = resultSet.getFloat("current_reading");
-            Long counterId = resultSet.getLong("counter_id");
-            Long groupId = resultSet.getLong("group_id");
-            String date = resultSet.getString("date");
-
-            return new CounterReadingModel(id, counterId, groupId, date, currentReading);
+                return new CounterReadingModel(id, counterId, groupId, date, currentReading);
+            }
+            throw new CounterReadingNotFoundException();
+        } catch (CounterReadingNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServerErrorException("internal server error", e);
         }
-        throw new CounterReadingNotFoundException();
     }
 
-    public List<CounterReadingModel> getAll() throws SQLException
+    public List<CounterReadingModel> getAll()
     {
         String query = "SELECT * FROM counter_reading_model;";
 
-        ResultSet resultSet = database.executeGet(query);
+        try (ResultSet resultSet = database.executeGet(query)) {
+            List<CounterReadingModel> counterReadingModels = new ArrayList<>();
 
-        List<CounterReadingModel> counterReadingModels = new ArrayList<>();
+            while (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                float currentReading = resultSet.getFloat("current_reading");
+                Long counterId = resultSet.getLong("counter_id");
+                Long groupId = resultSet.getLong("group_id");
+                String date = resultSet.getString("date");
 
-        while (resultSet.next())
-        {
-            Long id = resultSet.getLong("id");
-            Float currentReading = resultSet.getFloat("current_reading");
-            Long counterId = resultSet.getLong("counter_id");
-            Long groupId = resultSet.getLong("group_id");
-            String date = resultSet.getString("date");
+                CounterReadingModel counterReadingModel = new CounterReadingModel(id, counterId, groupId, date, currentReading);
 
-            CounterReadingModel counterReadingModel = new CounterReadingModel(id, counterId, groupId, date, currentReading);
-
-            counterReadingModels.add(counterReadingModel);
+                counterReadingModels.add(counterReadingModel);
+            }
+            return counterReadingModels;
+        } catch (Exception e) {
+            throw new ServerErrorException("internal server error", e);
         }
-        resultSet.close();
-        return counterReadingModels;
     }
 }
