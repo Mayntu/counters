@@ -1,4 +1,4 @@
-package test.group.counters;
+package test.group.counters.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,14 +23,6 @@ public class WebSpringConfig implements WebMvcConfigurer
     private UserRepository userRepository;
 
     @Bean
-    public Database database()
-    {
-        return new Database();
-    }
-
-
-
-    @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -50,8 +42,7 @@ public class WebSpringConfig implements WebMvcConfigurer
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder()
-    {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 

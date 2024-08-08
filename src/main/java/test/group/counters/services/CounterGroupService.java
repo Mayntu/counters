@@ -29,7 +29,7 @@ public class CounterGroupService
         try {
             return counterGroupRepository.getCounterGroupCountersCount();
         } catch (Exception e) {
-            throw new ServerErrorException("not working query", e);
+            throw new ServerErrorException("internal server error", e);
         }
     }
 
@@ -40,7 +40,7 @@ public class CounterGroupService
         } catch (DataIntegrityViolationException e) {
             throw new InvalidCounterGroupException();
         } catch (Exception e) {
-            throw new ServerErrorException("server error exception", e);
+            throw new ServerErrorException("internal server error", e);
         }
     }
 }

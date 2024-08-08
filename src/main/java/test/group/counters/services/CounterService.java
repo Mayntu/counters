@@ -23,8 +23,7 @@ public class CounterService
     private final PasswordEncoder passwordEncoder;
 
 
-    public CounterService(CounterRepository counterRepository, UserRepository userRepository, PasswordEncoder passwordEncoder)
-    {
+    public CounterService(CounterRepository counterRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.counterRepository = counterRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -35,13 +34,11 @@ public class CounterService
         return counterRepository.findById(id).orElseThrow(CounterNotFoundException::new);
     }
 
-    public InsertedCounterDTO insert(CreateCounterRequest createCounterRequest)
-    {
+    public InsertedCounterDTO insert(CreateCounterRequest createCounterRequest) {
         String username = "COUNTER_" + createCounterRequest.getName();
         String password = generatePassword();
 
-        try
-        {
+        try {
             UserModel userModel = new UserModel(username, passwordEncoder.encode(password), Role.METER);
             userRepository.save(userModel);
 
@@ -50,7 +47,7 @@ public class CounterService
         } catch (DataIntegrityViolationException e) {
             throw new InvalidCounterException();
         } catch (Exception e) {
-            throw new ServerErrorException("server not working", e);
+            throw new ServerErrorException("internal server error", e);
         }
 
         InsertedCounterDTO insertedCounterDTO = new InsertedCounterDTO(username, password);
@@ -58,8 +55,7 @@ public class CounterService
         return insertedCounterDTO;
     }
 
-    private String generatePassword()
-    {
+    private String generatePassword() {
         return "12345";
     }
 }

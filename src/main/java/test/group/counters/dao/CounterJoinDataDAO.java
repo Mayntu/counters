@@ -26,8 +26,7 @@ public class CounterJoinDataDAO  {
         this.database = database;
     }
 
-    public List<CounterJoinDataDTO> info()
-    {
+    public List<CounterJoinDataDTO> info() {
         String query = "SELECT MIN(crm.current_reading), MAX(crm.current_reading), AVG(crm.current_reading), cem.group_name, cem.name FROM counter_reading_model AS crm JOIN counter_model cem ON crm.counter_id = cem.id GROUP BY cem.name, cem.group_name;";
         List<CounterJoinDataDTO> counterJoinDataModelList = new ArrayList<>();
         try (ResultSet resultSet = database.executeGet(query)) {
@@ -67,8 +66,7 @@ public class CounterJoinDataDAO  {
         return new FileSystemResource(file);
     }
 
-    public String generateReportName()
-    {
+    public String generateReportName() {
         UUID uuid = UUID.randomUUID();
         return String.format("report_%s.xls", uuid);
     }

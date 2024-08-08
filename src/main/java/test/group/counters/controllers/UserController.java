@@ -15,26 +15,17 @@ public class UserController
 {
     private final AuthenticationService authenticationService;
 
-    public UserController(AuthenticationService authenticationService)
-    {
+    public UserController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 
     @PostMapping("/api/v1/registration")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthRequest data)
-    {
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthRequest data) {
         return ResponseEntity.ok(authenticationService.register(data));
     }
 
     @PostMapping("/api/v1/authorization")
-    public ResponseEntity<AuthenticationResponse> authorization(@RequestBody AuthRequest data)
-    {
+    public ResponseEntity<AuthenticationResponse> authorization(@RequestBody AuthRequest data) {
         return ResponseEntity.ok(authenticationService.authorization(data));
-    }
-
-    @GetMapping("/api/v1/admin")
-    public ResponseEntity<String> getAdmin()
-    {
-        return ResponseEntity.ok("admin is working");
     }
 }

@@ -19,8 +19,7 @@ public class CounterDAO
         this.database = database;
     }
 
-    public Long getNextId()
-    {
+    public Long getNextId() {
         String query = "SELECT nextval('counter_id_seq');";
 
         Long nextId = null;
@@ -37,15 +36,14 @@ public class CounterDAO
 
         return nextId;
     }
-    public void insert(CounterModel counterModel)
-    {
+    public void insert(CounterModel counterModel) {
         String query = "INSERT INTO counter_model " +
                 "(id, name, group_name)" +
                 String.format("VALUES (%s, '%s', '%s');", getNextId(), counterModel.getName(), counterModel.getGroupName());
 
         try {
             database.executeCommit(query);
-        } catch (SQLException exception) {
+        } catch (Exception exception) {
             throw new InvalidCounterException();
         }
     }
@@ -57,10 +55,8 @@ public class CounterDAO
                 "WHERE id = %s", counterModel.getName(), counterModel.getGroupName(), id);
         try {
             database.executeCommit(query);
-        } catch (SQLException e) {
-            throw new InvalidCounterException();
         } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+            throw new InvalidCounterException(e.getMessage());
         }
     }
 

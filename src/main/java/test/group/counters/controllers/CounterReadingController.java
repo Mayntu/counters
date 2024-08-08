@@ -33,22 +33,19 @@ public class CounterReadingController
     public Page<CounterReadingModel> apiGetAllCounterReadings(
             @RequestParam(value = "offset", defaultValue = "0") @Min(0) Integer offset,
             @RequestParam(value = "limit", defaultValue = "20") @Min(0) @Max(100) Integer limit
-    )
-    {
+    ) {
         return counterReadingService.getAll(offset, limit);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('get_reading')")
-    public CounterReadingModel apiGetCounterReading(@PathVariable Long id)
-    {
+    public CounterReadingModel apiGetCounterReading(@PathVariable Long id) {
         return counterReadingService.get(id);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('post_reading')")
-    public ResponseEntity<Void> apiInsertCounterReading(@Valid @RequestBody CounterReadingModel counterReadingModel)
-    {
+    public ResponseEntity<Void> apiInsertCounterReading(@Valid @RequestBody CounterReadingModel counterReadingModel) {
         counterReadingService.insert(counterReadingModel);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -57,20 +54,5 @@ public class CounterReadingController
     @PreAuthorize("hasAuthority('post_reading')")
     public List<CounterReadingModel> handleFileUpload(@RequestParam("file") MultipartFile file) {
         return counterReadingService.uploadFile(file);
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex)
-    {
-        Map<String, String> errors = new HashMap<>();
-
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return errors;
     }
 }

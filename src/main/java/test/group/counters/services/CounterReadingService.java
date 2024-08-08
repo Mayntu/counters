@@ -27,8 +27,7 @@ public class CounterReadingService
         this.counterReadingRepository = counterReadingRepository;
     }
 
-    public Page<CounterReadingModel> getAll(Integer offset, Integer limit)
-    {
+    public Page<CounterReadingModel> getAll(Integer offset, Integer limit) {
         try {
             return counterReadingRepository.findAll(PageRequest.of(offset, limit));
         } catch (Exception e) {
@@ -36,29 +35,24 @@ public class CounterReadingService
         }
     }
 
-    public CounterReadingModel get(Long id)
-    {
+    public CounterReadingModel get(Long id) {
         return counterReadingRepository.findById(id).orElseThrow(CounterReadingNotFoundException::new);
     }
 
-    public void insert(CounterReadingModel counterReadingModel)
-    {
+    public void insert(CounterReadingModel counterReadingModel) {
         counterReadingRepository.save(counterReadingModel);
     }
 
-    public List<CounterReadingModel> uploadFile(MultipartFile fileToUpload)
-    {
+    public List<CounterReadingModel> uploadFile(MultipartFile fileToUpload) {
         List<CounterReadingModel> excelData = new ArrayList<>();
 
-        try (InputStream inputStream = fileToUpload.getInputStream();
-             Workbook workbook = new XSSFWorkbook(inputStream)) {
+        try (InputStream inputStream = fileToUpload.getInputStream(); Workbook workbook = new XSSFWorkbook(inputStream)) {
 
             Sheet sheet = workbook.getSheetAt(0);
             int index = 0;
 
             for (Row row : sheet) {
-                if (index == 0)
-                {
+                if (index == 0) {
                     index = 1;
                     continue;
                 }
@@ -74,7 +68,7 @@ public class CounterReadingService
             }
 
         } catch (IOException e) {
-            throw new ServerErrorException("server error internal", e);
+            throw new ServerErrorException("internal server error", e);
         }
 
         return excelData;

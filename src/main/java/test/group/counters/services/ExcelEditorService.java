@@ -16,8 +16,7 @@ import java.util.List;
 @Service
 public class ExcelEditorService
 {
-    public static void writeToExcel (List<CounterJoinDataDTO> counterJoinDataModelList, String fileName)
-    {
+    public static void writeToExcel (List<CounterJoinDataDTO> counterJoinDataModelList, String fileName) {
         try (Workbook workbook = new HSSFWorkbook(); OutputStream fileOut = new FileOutputStream(fileName)) {
             Sheet mainSheet = workbook.createSheet("counters");
 

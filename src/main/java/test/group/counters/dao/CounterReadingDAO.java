@@ -20,8 +20,7 @@ public class CounterReadingDAO {
         this.database = database;
     }
 
-    public Long getNextId()
-    {
+    public Long getNextId() {
         Long nextId = null;
 
         String query = "SELECT nextval('counter_reading_id_seq')";
@@ -38,8 +37,7 @@ public class CounterReadingDAO {
         return nextId;
     }
 
-    public void insert(CounterReadingModel counterReadingModel)
-    {
+    public void insert(CounterReadingModel counterReadingModel) {
         String query = "INSERT INTO counter_reading_model " +
                        "(id, current_reading, counter_id, date, group_id) " +
                        String.format("VALUES (%s, %s, %s, '%s', %s)",
@@ -52,7 +50,7 @@ public class CounterReadingDAO {
         try {
             database.executeCommit(query);
         } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+            throw new InvalidCounterReadingException(e.getMessage());
         }
     }
 
@@ -69,10 +67,8 @@ public class CounterReadingDAO {
 
         try {
             database.executeCommit(query);
-        } catch (SQLException e) {
-            throw new InvalidCounterReadingException();
         } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+            throw new InvalidCounterReadingException(e.getMessage());
         }
     }
 

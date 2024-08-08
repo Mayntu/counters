@@ -1,17 +1,26 @@
 package test.group.counters.core;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import test.group.counters.CustomExceptions.InvalidDataException;
+
 import java.sql.*;
 
-public class Database
-{
-    private final String JDBC_URL = "jdbc:postgresql://localhost:5432/meters";
-    private final String USERNAME = "postgres";
-    private final String PASSWORD = "admin";
+@Service
+public class Database {
+    @Value("${spring.datasource.url}")
+    private String JDBC_URL;
+    @Value("${spring.datasource.username}")
+    private String USERNAME;
+    @Value("${spring.datasource.password}")
+    private String PASSWORD;
 
     private Connection connection;
 
-    public Database ()
-    {
+    @PostConstruct
+    public void initializeConnection () {
         try {
             connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
         } catch (SQLException e) {
@@ -19,16 +28,30 @@ public class Database
         }
     }
 
-    public void executeCommit(String query) throws SQLException
-    {
-        Statement statement = connection.createStatement();
-        statement.executeUpdate(query);
-        statement.close();
+    public void executeCommit(String query) {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(query);
+        } catch (SQLException exception) {
+            throw new InvalidDataException("not valid query");
+        }
     }
 
-    public ResultSet executeGet(String query) throws SQLException
-    {
-        Statement statement = connection.createStatement();
-        return statement.executeQuery(query);
+    public ResultSet executeGet(String query) {
+        try (Statement statement = connection.createStatement()){
+            return statement.executeQuery(query);
+        } catch (SQLException e) {
+            throw new InvalidDataException("not valid query");
+        }
+    }
+
+    @PreDestroy
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

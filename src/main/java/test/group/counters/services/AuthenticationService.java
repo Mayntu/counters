@@ -12,6 +12,7 @@ import test.group.counters.entities.Role;
 import test.group.counters.entities.UserModel;
 import test.group.counters.repositories.UserRepository;
 
+
 @Service
 public class AuthenticationService
 {
@@ -20,25 +21,23 @@ public class AuthenticationService
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager)
-    {
+
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
     }
 
-    public AuthenticationResponse register(AuthRequest data)
-    {
-        UserModel user = new UserModel(data.getUsername(), passwordEncoder.encode(data.getPassword()), data.getIsOperator() ? Role.OPERATOR : Role.METER);
+
+    public AuthenticationResponse register(AuthRequest data) {
+        UserModel user = new UserModel(data.getUsername(), passwordEncoder.encode(data.getPassword()), Role.OPERATOR);
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         return new AuthenticationResponse(token);
     }
 
-    public AuthenticationResponse authorization(AuthRequest data)
-    {
+    public AuthenticationResponse authorization(AuthRequest data) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         data.getUsername(),
