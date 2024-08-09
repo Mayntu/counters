@@ -21,15 +21,13 @@ public class CounterController
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('get_counter')")
-    public CounterModel apiGetCounter(@PathVariable Long id)
-    {
+    public CounterModel apiGetCounter(@PathVariable Long id) {
         return counterService.get(id);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('post_counter')")
-    public InsertedCounterDTO apiInsertCounter(@Valid @RequestBody CreateCounterRequest createCounterRequest)
-    {
+    public InsertedCounterDTO apiInsertCounter(@Valid @RequestBody CreateCounterRequest createCounterRequest) {
         return counterService.insert(createCounterRequest);
     }
 }

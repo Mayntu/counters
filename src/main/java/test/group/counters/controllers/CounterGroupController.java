@@ -22,22 +22,19 @@ public class CounterGroupController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('get_counter_group')")
-    public CounterGroupModel apiGetCounterGroupModel(@PathVariable Long id)
-    {
+    public CounterGroupModel apiGetCounterGroupModel(@PathVariable Long id) {
         return counterGroupService.get(id);
     }
 
     @GetMapping("/count")
     @PreAuthorize("hasAnyAuthority('get_counter_group')")
-    public List<CountersGroupCountersCountDTO> apiGetCountersGroupCountersCount()
-    {
+    public List<CountersGroupCountersCountDTO> apiGetCountersGroupCountersCount() {
         return counterGroupService.getCounters();
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('post_counter_group')")
-    public ResponseEntity<Void> apiPostCounterGroupModel(@Valid @RequestBody CounterGroupModel counterGroupModel)
-    {
+    public ResponseEntity<Void> apiPostCounterGroupModel(@Valid @RequestBody CounterGroupModel counterGroupModel) {
         counterGroupService.insert(counterGroupModel);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

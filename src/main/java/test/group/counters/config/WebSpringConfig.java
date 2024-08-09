@@ -19,8 +19,11 @@ import test.group.counters.repositories.UserRepository;
 @Configuration
 public class WebSpringConfig implements WebMvcConfigurer
 {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public WebSpringConfig(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Bean
     public UserDetailsService userDetailsService() {
