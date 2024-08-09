@@ -44,6 +44,14 @@ public class Database {
         }
     }
 
+    public PreparedStatement getPreparedStatement(String query) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            return preparedStatement;
+        } catch (SQLException exception) {
+            throw new InvalidDataException("not valid query");
+        }
+    }
+
     @PreDestroy
     public void closeConnection() {
         if (connection != null) {

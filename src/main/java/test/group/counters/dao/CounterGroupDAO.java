@@ -7,6 +7,7 @@ import test.group.counters.CustomExceptions.InvalidCounterGroupException;
 import test.group.counters.core.Database;
 import test.group.counters.entities.CounterGroupModel;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -20,59 +21,61 @@ public class CounterGroupDAO
     }
 
     public Long getNextId() {
-        String query = "SELECT nextval('counter_group_id_seq');";
+        String query = "SELECT nextval('counter_group_id_seq')";
 
-        Long nextId = null;
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-        try (ResultSet resultSet = database.executeGet(query)) {
             if (resultSet.next()) {
-                nextId = resultSet.getLong(1);
+                return resultSet.getLong(1);
+            } else {
+                throw new InvalidCounterGroupException("no next id from sequence");
             }
         } catch (SQLException e) {
-            throw new InvalidCounterGroupException();
-        } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+            throw new InvalidCounterGroupException("error fetching next id");
         }
-
-        return nextId;
     }
     public void insert(CounterGroupModel counterGroupModel) {
-        String query = "INSERT INTO counter_group_model " +
-                       "(id, name) " +
-                       String.format("VALUES (%s, '%s');", getNextId(), counterGroupModel.getName());
+        String query = "INSERT INTO counter_group_model (id, name) VALUES (?, ?)";
 
-        try {
-            database.executeCommit(query);
-        } catch (Exception exception) {
-            throw new InvalidCounterGroupException(exception.getMessage());
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query)) {
+            preparedStatement.setLong(1, getNextId());
+            preparedStatement.setString(2, counterGroupModel.getName());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new InvalidCounterGroupException("not valid counter data");
         }
     }
 
     public void update(CounterGroupModel counterGroupModel, Long id) {
         get(id);
-        String query = "UPDATE counter_group_model " +
-                       String.format("SET name = '%s' ", counterGroupModel.getName()) +
-                       String.format("WHERE id = %s", id);
-        try {
-            database.executeCommit(query);
-        } catch (Exception e) {
-            throw new InvalidCounterGroupException();
+        String query = "UPDATE counter_group_model SET name = ? WHERE id = ?";
+
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query)) {
+            preparedStatement.setString(1, counterGroupModel.getName());
+            preparedStatement.setLong(2, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new InvalidCounterGroupException("invalid counter data");
         }
     }
 
     public CounterGroupModel get(Long id) {
-        String query = String.format("SELECT * FROM counter_group_model WHERE id = %s;", id);
+        String query = "SELECT * FROM counter_group_model WHERE id = ?";
 
-        try (ResultSet resultSet = database.executeGet(query)) {
-            if (resultSet.next()) {
-                String name = resultSet.getString("name");
-                return new CounterGroupModel(id, name);
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query)) {
+            preparedStatement.setLong(1, id);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    return new CounterGroupModel(id, name);
+                } else {
+                    throw new CounterGroupNotFoundException();
+                }
             }
-            else {
-                throw new CounterGroupNotFoundException();
-            }
-        } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+        } catch (SQLException e) {
+            throw new InvalidCounterGroupException("invalid counter data : " + e.getMessage());
         }
     }
 }

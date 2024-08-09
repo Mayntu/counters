@@ -7,6 +7,7 @@ import test.group.counters.CustomExceptions.InvalidCounterReadingException;
 import test.group.counters.core.Database;
 import test.group.counters.entities.CounterReadingModel;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,76 +22,73 @@ public class CounterReadingDAO {
     }
 
     public Long getNextId() {
-        Long nextId = null;
-
         String query = "SELECT nextval('counter_reading_id_seq')";
 
-        try (ResultSet resultSet = database.executeGet(query)) {
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
             if (resultSet.next()) {
-                nextId = resultSet.getLong(1);
+                return resultSet.getLong(1);
+            } else {
+                throw new InvalidCounterReadingException("no next id from sequence");
             }
         } catch (SQLException e) {
-            throw new InvalidCounterReadingException();
-        } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+            throw new InvalidCounterReadingException("error fetching next id");
         }
-        return nextId;
     }
 
     public void insert(CounterReadingModel counterReadingModel) {
-        String query = "INSERT INTO counter_reading_model " +
-                       "(id, current_reading, counter_id, date, group_id) " +
-                       String.format("VALUES (%s, %s, %s, '%s', %s)",
-                               getNextId(),
-                               counterReadingModel.getCurrentReading(),
-                               counterReadingModel.getCounterId(),
-                               counterReadingModel.getDate(),
-                               counterReadingModel.getGroupId()
-                       );
-        try {
-            database.executeCommit(query);
-        } catch (Exception e) {
-            throw new InvalidCounterReadingException(e.getMessage());
+        String query = "INSERT INTO counter_reading_model (id, current_reading, counter_id, date, group_id) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query)) {
+            preparedStatement.setLong(1, getNextId());
+            preparedStatement.setFloat(2, counterReadingModel.getCurrentReading());
+            preparedStatement.setLong(3, counterReadingModel.getCounterId());
+            preparedStatement.setString(4, counterReadingModel.getDate());
+            preparedStatement.setLong(5, counterReadingModel.getGroupId());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new InvalidCounterReadingException("not valid counter reading data");
         }
     }
 
     public void update(CounterReadingModel counterReadingModel, Long id)
     {
-        String query = "UPDATE counter_reading_model " +
-                       String.format("SET current_reading = %s, counter_id = %s, date = '%s', group_id = %s",
-                               counterReadingModel.getCurrentReading(),
-                               counterReadingModel.getCounterId(),
-                               counterReadingModel.getDate(),
-                               counterReadingModel.getGroupId()
-                       ) +
-                       String.format("WHERE id = %s;", id);
+        String query = "UPDATE counter_reading_model SET current_reading = ?, counter_id = ?, date = ?, group_id = ? WHERE id = ?";
 
-        try {
-            database.executeCommit(query);
-        } catch (Exception e) {
-            throw new InvalidCounterReadingException(e.getMessage());
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query)) {
+            preparedStatement.setFloat(1, counterReadingModel.getCurrentReading());
+            preparedStatement.setLong(2, counterReadingModel.getCounterId());
+            preparedStatement.setString(3, counterReadingModel.getDate());
+            preparedStatement.setLong(4, counterReadingModel.getGroupId());
+            preparedStatement.setLong(5, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new InvalidCounterReadingException();
         }
     }
 
     public CounterReadingModel get(Long id)
     {
-        String query = String.format("SELECT * FROM counter_reading_model WHERE id = %s", id);
+        String query = "SELECT * FROM counter_reading_model WHERE id = ?";
 
-        try (ResultSet resultSet = database.executeGet(query)) {
-            if (resultSet.next())
-            {
-                float currentReading = resultSet.getFloat("current_reading");
-                Long counterId = resultSet.getLong("counter_id");
-                Long groupId = resultSet.getLong("group_id");
-                String date = resultSet.getString("date");
+        try (PreparedStatement preparedStatement = database.getPreparedStatement(query)) {
+            preparedStatement.setLong(1, id);
 
-                return new CounterReadingModel(id, counterId, groupId, date, currentReading);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    float currentReading = resultSet.getFloat("current_reading");
+                    Long counterId = resultSet.getLong("counter_id");
+                    Long groupId = resultSet.getLong("group_id");
+                    String date = resultSet.getString("date");
+
+                    return new CounterReadingModel(id, counterId, groupId, date, currentReading);
+                } else {
+                    throw new CounterReadingNotFoundException("Counter reading not found with ID: " + id);
+                }
             }
-            throw new CounterReadingNotFoundException();
-        } catch (CounterReadingNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ServerErrorException("internal server error", e);
+        } catch (SQLException e) {
+            throw new InvalidCounterReadingException("not valid id form : " + id);
         }
     }
 
