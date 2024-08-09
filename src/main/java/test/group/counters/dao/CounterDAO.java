@@ -1,7 +1,6 @@
 package test.group.counters.dao;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ServerErrorException;
 import test.group.counters.CustomExceptions.CounterNotFoundException;
 import test.group.counters.CustomExceptions.InvalidCounterException;
 import test.group.counters.core.Database;
